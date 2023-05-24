@@ -4,7 +4,6 @@ import os
 
 class CommandAndControl:
     def createSignature(self, msg):
-
         # load or generate the ECDSA key pair
         if os.path.isfile("private.key"):
             # load the existing private key

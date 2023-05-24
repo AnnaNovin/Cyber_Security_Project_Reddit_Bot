@@ -42,13 +42,14 @@ PATH = r'chromedriver.exe'
 #     return encrypted_message
 #
 #
-# def writeListToFile(key, list):
-#     with open('config.json', 'r') as openfile:
-#         dictionary = json.load(openfile)
-#     dictionary[key] = list
-#     json_object = json.dumps(dictionary, indent=3)
-#     with open("config.json", "w") as outfile:
-#         outfile.write(json_object)
+def writeListToFile(key, list):
+    with open('config.json', 'r') as openfile:
+        dictionary = json.load(openfile)
+    dictionary[key] = list
+    json_object = json.dumps(dictionary, indent=3)
+
+    with open("config.json", "w") as outfile:
+        outfile.write(json_object)
 
 
 class Bot:
@@ -72,29 +73,33 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
         createFile.write(key)
         createFile.close()
 
-        # try:
-        #     if not os.path.isfile("config.json"):
-        #         self.signUpToReddit()
-        #         login = "{},{},{}".format(self.login_email, self.login_username, self.login_password)
-        #         dictionary = {"login": login, "prev_comments": [], "rpDoneTasks": []}
-        #         json_object = json.dumps(dictionary, indent=3)
-        #         with open("config.json", "w") as outfile:
-        #             outfile.write(json_object)
-        #
-        #     else:
-        #         with open('config.json', 'r') as openfile:
-        #             dictionary = json.load(openfile)
-        #         login_data = dictionary["login"].split(",")
-        #         self.login_email = login_data[0]
-        #         self.login_username = login_data[1]
-        #         self.login_password = login_data[2]
-        #         try:
-        #             self.prev_comments = dictionary["prev_comments"]
-        #             self.rpDoneTasks = dictionary["rpDoneTasks"]
-        #         except Exception as e:
-        #             print(e)
-        # except Exception as e:
-        #     print(e)
+        try:
+            if not os.path.isfile("config.json"):
+                # self.signUpToReddit()
+                #TODO: DELETE THIS
+                self.login_email = "sdfjhfs@gmail.com"
+                self.login_password = "Happy!M72q"
+                self.login_username = "Holiday_Marketing_72"
+                login = "{},{},{}".format(self.login_email, self.login_username, self.login_password)
+                dictionary = {"login": login, "prev_comments": [], "rpDoneTasks": []}
+                json_object = json.dumps(dictionary, indent=3)
+                with open("config.json", "w") as outfile:
+                    outfile.write(json_object)
+
+            else:
+                with open('config.json', 'r') as openfile:
+                    dictionary = json.load(openfile)
+                login_data = dictionary["login"].split(",")
+                self.login_email = login_data[0]
+                self.login_username = login_data[1]
+                self.login_password = login_data[2]
+                try:
+                    self.prev_comments = dictionary["prev_comments"]
+                    self.rpDoneTasks = dictionary["rpDoneTasks"]
+                except Exception as e:
+                    print(e)
+        except Exception as e:
+            print(e)
 
     # def start(self):
     #     print("here")
@@ -181,7 +186,7 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
         result = hashlib.md5(dataToSave.encode('utf_8')).hexdigest()
         if cmd == "pm" and result not in self.rpDoneTasks:
             self.rpDoneTasks.insert(0, result)
-            # writeListToFile("rpDoneTasks", self.rpDoneTasks)
+            writeListToFile("rpDoneTasks", self.rpDoneTasks)
             root = tk.Tk()
             root.title("Message from Reddit-Bot")
             root.geometry("400x200")
@@ -197,7 +202,7 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
             data, err = res.communicate()
             # self.writeBack(data, err, browser, commentURL)
             self.rpDoneTasks.insert(0, result)
-            # writeListToFile("rpDoneTasks", self.rpDoneTasks)
+            writeListToFile("rpDoneTasks", self.rpDoneTasks)
 
     def GetNextCommand(self, sub_reddit, key1, key2, key3):
         # set parameters for web driver
@@ -233,7 +238,6 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
 
         # find all comments
         comments = WebDriverWait(browser, 10).until(EC.presence_of_all_elements_located((By.XPATH, "//div[contains(@class, 'Comment')]")))
-        # comments = browser.find_elements_by_xpath("//div[contains(@class, 'Comment')]")
 
         # if no relevant comments found [path corrupted], update status and exit
         if len(comments) == 0:
@@ -247,7 +251,6 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
         for comment in comments:
             # extract message and signature from comment
             full_msg = comment.find_element(By.XPATH, "./div[3]/div[2]/div").text
-            # full_msg = comment.find_element_by_xpath("./div[3]/div[2]/div").text
             lines = full_msg.split("\n")[:-1]
             msg_str = '\n'.join(lines)
             msg = bytes(msg_str, "utf-8")
@@ -267,10 +270,10 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
                 href = a_element.get_attribute('href')
                 comment_url = href.split('?')[0]
                 self.prev_comments.append((comment_url, [sub_reddit, key1, key2, key3]))
-                # try:
-                #     writeListToFile("prev_comments", self.prev_comments)
-                # except Exception as e:
-                #     print(e)
+                try:
+                    writeListToFile("prev_comments", self.prev_comments)
+                except Exception as e:
+                    print(e)
 
                 # execute the command if it exists
                 start_index = msg_str.find("😍")

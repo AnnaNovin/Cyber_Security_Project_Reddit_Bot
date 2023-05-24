@@ -1,12 +1,10 @@
-import hashlib
-
 import ecdsa
 import os
 
 
 class CommandAndControl:
-    #TODO: find signature type
     def createSignature(self, msg):
+
         # load or generate the ECDSA key pair
         if os.path.isfile("private.key"):
             # load the existing private key
@@ -39,5 +37,3 @@ class CommandAndControl:
         assert vk.verify(signature, message)
 
         return signature.hex()
-
-

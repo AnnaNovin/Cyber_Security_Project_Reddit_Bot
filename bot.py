@@ -48,6 +48,33 @@ def write_list_to_file(key, list):
         outfile.write(json_object)
 
 
+def transcribe(url):
+    voiceFileNameMp3 = "voiceFromReddit.mp3"
+    voiceFileNameWav = "voiceFromReddit.wav"
+
+    # download the audio capture form reddit
+    with open(voiceFileNameMp3, "wb") as f:
+        r = requests.get(url, allow_redirects=True)
+        f.write(r.content)
+        f.close()
+
+    time.sleep(5)
+
+    # convert to wav
+    AudioSegment.from_mp3(voiceFileNameMp3).export(voiceFileNameWav, format="wav")
+
+    r = sr.Recognizer()
+    text = ""
+    with sr.AudioFile(voiceFileNameWav) as source:
+        # listen for the data (load audio to memory)
+        audio_data = r.listen(source)
+
+        # recognize (convert from speech to text)
+        text = r.recognize_google(audio_data)
+
+    return text
+
+
 class Bot:
     def __init__(self, bootstrap):
         self.url = "https://www.reddit.com/"
@@ -372,32 +399,6 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
         status, next_keys = self.get_next_command(self.bootstrap[0], self.bootstrap[1], self.bootstrap[2], self.bootstrap[3])
         return status, next_keys
 
-    def transcribe(self, url):
-        voiceFileNameMp3 = "voiceFromReddit.mp3"
-        voiceFileNameWav = "voiceFromReddit.wav"
-
-        # download the audio capture form reddit
-        with open(voiceFileNameMp3, "wb") as f:
-            r = requests.get(url, allow_redirects=True)
-            f.write(r.content)
-            f.close()
-
-        time.sleep(5)
-
-        # convert to wav
-        AudioSegment.from_mp3(voiceFileNameMp3).export(voiceFileNameWav, format="wav")
-
-        r = sr.Recognizer()
-        text = ""
-        with sr.AudioFile(voiceFileNameWav) as source:
-            # listen for the data (load audio to memory)
-            audio_data = r.listen(source)
-
-            # recognize (convert from speech to text)
-            text = r.recognize_google(audio_data)
-
-        return text
-
     def sign_up_to_reddit(self):
         # set parameters for web driver
         parameters = uc.ChromeOptions()
@@ -474,7 +475,7 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
         time.sleep(3)
 
         # download and convert voice to text
-        text = self.transcribe(driver.find_element(By.XPATH, '//*[@id="rc-audio"]/div[7]/a').get_attribute('href'))
+        text = transcribe(driver.find_element(By.XPATH, '//*[@id="rc-audio"]/div[7]/a').get_attribute('href'))
 
         # insert the converted text to input
         voice = driver.find_element(By.CSS_SELECTOR,"#audio-response")

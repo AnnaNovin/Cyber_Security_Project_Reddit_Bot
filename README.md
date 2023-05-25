@@ -1,6 +1,8 @@
 # Reddit Bot
 
 ## Installation
+make sure you have python 3.11
+
 Before running the project install the following:
 ```sh
 pip install undetected-chromedriver

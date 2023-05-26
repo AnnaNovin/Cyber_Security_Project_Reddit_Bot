@@ -12,11 +12,12 @@ PATH = r'chromedriver.exe'
 
 if __name__ == '__main__':
     # run the Reddit bot
-    bootstap = ['wow', 'fairy', 'fox', 'dream'] #["harrypotter","art","water","lilly"]
+    bootstap = ["harrypotter","art","water","lilly"] #['wow', 'fairy', 'fox', 'dream']
     demo = bot.Bot(bootstap)
     status, next_keys = demo.start()
 
     timeToSleep = 0
+
     while True:
         if status == 1:  # found next keys
             status, next_keys = demo.get_next_command(next_keys[0], next_keys[1], next_keys[2], next_keys[3])

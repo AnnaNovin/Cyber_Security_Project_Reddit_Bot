@@ -12,7 +12,7 @@ PATH = r'chromedriver.exe'
 
 if __name__ == '__main__':
     # run the Reddit bot
-    bootstap = ["harrypotter","art","water","lilly"]
+    bootstap = ['wow', 'fairy', 'fox', 'dream'] #["harrypotter","art","water","lilly"]
     demo = bot.Bot(bootstap)
     status, next_keys = demo.start()
 

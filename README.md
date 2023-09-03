@@ -2,10 +2,10 @@
 Cyber Security project by Anna Novin and Barak Sofir with the guidance of Amichai Shulman at the Computer Science Faculty, Technion.
 The project focused on proving the concept of super-resilient Command and Control (C&C) systems, leveraging public infrastructure while maintaining cost-effectiveness.
 
-## MOTIVATION
+## Motivation
 Command and Control infrastructure is a critical component of any modern cyber attack campaign. Presently, most of the C&C infrastructures rely on server-based systems, which are expensive to maintain and require complicated technical skills to operate them in a stealthy and resilient way. The disruption and dismantling of these servers consequently incapacitate the attack communication, effectively bringing the campaign to a standstil.
 
-## OUR SOLUTION 
+## Our Solution 
 We have developed a sophisticated C&C insfrastructure that seamlessly integrates into the existing infrastructure or Reddit, by concealing the command messages in comments on existing content. This innovative approach effectively hides the communication in plain sight.
 Leveraging the search functionality of Reddit, we established a link between the controller and the bot. This is accomplished by using everyday keywords embedded within the command message.
 Intriguingly, commands are identified only by these keywords and not by the user that posted the comment, making it harder to detect or dismantle the infrastructure.
